@@ -17,6 +17,7 @@ type Context struct {
 	Client *whatsmeow.Client
 	Msg    *parser.ParsedMessage
 	Logger *zap.Logger
+	Result *CommandResult
 }
 
 // Reply sends a text message back to the chat where the command originated.

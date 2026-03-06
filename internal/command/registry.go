@@ -50,15 +50,19 @@ func (r *Registry) Commands() []Command {
 // Key design decisions:
 // - Centralized try/catch (error handling log) for command execution.
 // - Guards are evaluated before Execute(), aborting early if failed.
-func (r *Registry) Dispatch(ctx *Context) error {
+// - Returns *CommandResult so middleware can inspect the status structuredly.
+func (r *Registry) Dispatch(ctx *Context) (*CommandResult, error) {
 	if !ctx.Msg.IsCommand {
-		return nil
+		return nil, nil
 	}
 
 	cmd, exists := r.commands[ctx.Msg.CommandName]
 	if !exists {
 		// Command not found, silently ignore to not spam users.
-		return nil
+		return &CommandResult{
+			Status:  StatusNotFound,
+			Command: ctx.Msg.CommandName,
+		}, nil
 	}
 
 	// Run all guards attached to the command
@@ -73,7 +77,10 @@ func (r *Registry) Dispatch(ctx *Context) error {
 				zap.String("reason", reason),
 				zap.String("sender", ctx.Msg.From.String()),
 			)
-			return nil
+			return &CommandResult{
+				Status:  StatusGuardDenied,
+				Command: cmd.Name(),
+			}, nil
 		}
 	}
 
@@ -84,8 +91,25 @@ func (r *Registry) Dispatch(ctx *Context) error {
 			zap.Error(err),
 		)
 		_ = ctx.Reply("⚠️ Something went wrong while executing the command.")
-		return err
+		return &CommandResult{
+			Status:  StatusError,
+			Command: cmd.Name(),
+			Err:     err,
+		}, err
 	}
 
-	return nil
+	return &CommandResult{
+		Status:  StatusOk,
+		Command: cmd.Name(),
+	}, nil
+}
+
+// DispatchHandler adapts Dispatch to middleware.HandlerFunc and sets ctx.Result
+// so that outer middleware (like Logger) can inspect the output status.
+func (r *Registry) DispatchHandler() func(ctx *Context) error {
+	return func(ctx *Context) error {
+		res, err := r.Dispatch(ctx)
+		ctx.Result = res
+		return err
+	}
 }

@@ -55,7 +55,8 @@ func main() {
 	rateLimiter := middleware.NewRateLimiter(5, 10*time.Second)
 
 	handler := middleware.Chain(
-		registry.Dispatch,
+		registry.DispatchHandler(),
+		middleware.CommandLoggerMiddleware(logger),
 		rateLimiter.Middleware(),
 		middleware.Logger(),
 	)
