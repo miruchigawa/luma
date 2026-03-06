@@ -140,7 +140,7 @@ func TestParse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			evt := createEvt(tt.msg)
-			pm := Parse(evt, tt.prefix)
+			pm := Parse(evt, []string{tt.prefix})
 			tt.validate(t, pm)
 		})
 	}

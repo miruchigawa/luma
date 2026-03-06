@@ -16,8 +16,9 @@ type Config struct {
 
 // BotConfig holds bot-specific settings.
 type BotConfig struct {
-	CommandPrefix string   `mapstructure:"command_prefix" yaml:"command_prefix"`
-	AdminJIDs     []string `mapstructure:"admin_jids" yaml:"admin_jids"`
+	CommandPrefixes []string `mapstructure:"command_prefixes" yaml:"command_prefixes"`
+	ListenSelf      bool     `mapstructure:"listen_self" yaml:"listen_self"`
+	AdminJIDs       []string `mapstructure:"admin_jids" yaml:"admin_jids"`
 }
 
 // SessionConfig holds session store settings.
@@ -63,7 +64,8 @@ func Load() (*Config, error) {
 	v.AutomaticEnv()
 
 	// Setting default values
-	v.SetDefault("bot.command_prefix", "!")
+	v.SetDefault("bot.command_prefixes", []string{"!"})
+	v.SetDefault("bot.listen_self", false)
 	v.SetDefault("session.driver", "sqlite")
 	v.SetDefault("session.login_method", "qr")
 	v.SetDefault("log.level", "info")

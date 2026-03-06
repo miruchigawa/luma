@@ -3,6 +3,9 @@
 run:
 	go run ./cmd/bot
 
+dev:
+	air
+
 build:
 	go build -o bin/bot ./cmd/bot
 

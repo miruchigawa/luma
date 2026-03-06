@@ -1,5 +1,7 @@
 bot:
-  command_prefix: "!"      # prefix for commands (e.g. !ping)
+  command_prefixes:        # list of prefixes for commands (e.g. !ping)
+    - "!"
+  listen_self: false       # allow responding to messages sent by the bot's own number
   admin_jids:              # list of admin phone numbers (e.g. "628xxx@s.whatsapp.net")
     - ""
 

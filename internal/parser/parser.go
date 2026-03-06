@@ -49,7 +49,7 @@ type ParsedMessage struct {
 // - Centralizes message unpacking so commands don't deal with Protobuf internals.
 // - Normalizes commands by stripping whitespace, lowercasing names.
 // - Gracefully handles different message types (Text, Image+Caption, Video+Caption, etc.).
-func Parse(evt *events.Message, prefix string) *ParsedMessage {
+func Parse(evt *events.Message, prefixes []string) *ParsedMessage {
 	if evt.Message == nil {
 		return nil
 	}
@@ -121,8 +121,16 @@ func Parse(evt *events.Message, prefix string) *ParsedMessage {
 
 	pm.Body = strings.TrimSpace(body)
 
-	if prefix != "" && strings.HasPrefix(pm.Body, prefix) {
-		cmdLine := strings.TrimPrefix(pm.Body, prefix)
+	var matchedPrefix string
+	for _, p := range prefixes {
+		if p != "" && strings.HasPrefix(pm.Body, p) {
+			matchedPrefix = p
+			break
+		}
+	}
+
+	if matchedPrefix != "" {
+		cmdLine := strings.TrimPrefix(pm.Body, matchedPrefix)
 		cmdLine = strings.TrimSpace(cmdLine)
 		if cmdLine != "" {
 			pm.IsCommand = true

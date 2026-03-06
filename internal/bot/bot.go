@@ -70,16 +70,17 @@ func (b *Bot) Stop() {
 func (b *Bot) onEvent(evt interface{}) {
 	switch v := evt.(type) {
 	case *events.Message:
-		if v.Info.IsFromMe {
+		// Anti-replay: ignore messages older than 2 minutes to allow for clock drift
+		if time.Since(v.Info.Timestamp) > 2*time.Minute {
 			return
 		}
 
-		// Anti-replay: ignore messages older than 30 seconds
-		if time.Since(v.Info.Timestamp) > 30*time.Second {
+		// Ignore commands from the bot itself unless configured to listen to them
+		if v.Info.IsFromMe && !b.cfg.Bot.ListenSelf {
 			return
 		}
 
-		pm := parser.Parse(v, b.cfg.Bot.CommandPrefix)
+		pm := parser.Parse(v, b.cfg.Bot.CommandPrefixes)
 		if pm == nil {
 			return
 		}
