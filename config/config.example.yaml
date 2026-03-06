@@ -1,0 +1,16 @@
+bot:
+  command_prefix: "!"      # prefix for commands (e.g. !ping)
+  admin_jids:              # list of admin phone numbers (e.g. "628xxx@s.whatsapp.net")
+    - ""
+
+session:
+  driver: "postgres"         # "sqlite" | "postgres"
+  login_method: "pair"       # "qr" | "pair"
+  phone_number: ""         # required if login_method is "pair" (e.g., "628123456789")
+  sqlite:
+    path: "data/session.db"
+  postgres:
+    dsn: "postgresql://user:password@host:port/dbname?sslmode=require"
+
+log:
+  level: "info"            # debug | info | warn | error
